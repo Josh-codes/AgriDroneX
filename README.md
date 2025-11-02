@@ -8,6 +8,7 @@ A full-stack application for precision agriculture using drone technology to pro
 - **Services Page**: Pricing plans (Standard & Premium) with expandable features
 - **Weather Dashboard**: Integrated weather monitoring for farms with location-based data
 - **Crop Disease Detection**: ML-powered image analysis for crop blight detection
+- **AI Chatbot**: Gemini-powered agricultural assistant for crop recommendations and farming advice
 - **Insights/FAQ**: Comprehensive FAQ section
 - **Responsive Design**: Modern, clean UI matching the provided designs
 
@@ -134,6 +135,12 @@ The frontend will run on `http://localhost:3000`
 - `POST /api/predict/` - Upload image for crop blight detection
   - Request: multipart/form-data with `image` field
   - Response: JSON with prediction results
+
+### Chatbot API
+- `POST /api/chat/` - Chat with Gemini AI agricultural assistant
+  - Request: JSON with `message` (required) and `location` (optional)
+  - Response: JSON with AI response
+  - Features: Location-based crop recommendations, farming advice, disease prevention tips
 
 ## Usage
 

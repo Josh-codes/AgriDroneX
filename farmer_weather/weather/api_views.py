@@ -1,12 +1,21 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
 import json
 from .models import Farm, Crop, WeatherData, FarmingInsight
 from .weather_service import WeatherService
 from .insights import InsightGenerator
 from datetime import datetime
 import os
+
+# Gemini AI imports
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    print("⚠️ google-generativeai not installed. Chatbot will not work.")
 
 # ML Prediction imports
 import cv2
@@ -261,3 +270,121 @@ def get_crops(request):
         'name': crop.get_name_display(),
     } for crop in crops]
     return JsonResponse(crops_data, safe=False)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def chat_with_gemini(request):
+    """Chat endpoint using Google Gemini AI"""
+    if not GEMINI_AVAILABLE:
+        return JsonResponse({
+            'error': 'Gemini AI is not available. Please install google-generativeai package.'
+        }, status=503)
+    
+    try:
+        data = json.loads(request.body)
+        user_message = data.get('message', '').strip()
+        location = data.get('location', '')  # Optional: latitude, longitude or location name
+        
+        if not user_message:
+            return JsonResponse({'error': 'Message is required'}, status=400)
+        
+        # Configure Gemini
+        api_key = settings.GEMINI_API_KEY
+        if not api_key:
+            return JsonResponse({
+                'error': 'Gemini API key not configured. Please set GEMINI_API_KEY in environment variables.'
+            }, status=500)
+        
+        genai.configure(api_key=api_key)
+        
+        # Create a model instance - try different models in order of preference
+        model = None
+        selected_model_name = None
+        model_names = ['gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-pro']
+        
+        for model_name in model_names:
+            try:
+                model = genai.GenerativeModel(model_name)
+                selected_model_name = model_name
+                print(f"✅ Successfully loaded model: {model_name}")
+                break
+            except Exception as e:
+                print(f"⚠️ Model {model_name} not available: {e}")
+                continue
+        
+        if model is None:
+            # Fallback: try to list available models
+            try:
+                print("🔄 Attempting to list available models...")
+                available_models = genai.list_models()
+                # Get the first available model that supports generateContent
+                for m in available_models:
+                    if 'generateContent' in m.supported_generation_methods:
+                        # Extract model name from full path like "models/gemini-1.5-flash"
+                        model_path = m.name
+                        selected_model_name = model_path.split('/')[-1] if '/' in model_path else model_path
+                        model = genai.GenerativeModel(selected_model_name)
+                        print(f"✅ Using available model: {selected_model_name}")
+                        break
+            except Exception as e:
+                print(f"❌ Error listing models: {e}")
+        
+        if model is None:
+            error_msg = (
+                'No suitable Gemini model available. '
+                'Please check your API key and model availability. '
+                'Available models: gemini-1.5-flash, gemini-1.5-pro, or check your Google AI Studio dashboard.'
+            )
+            return JsonResponse({'error': error_msg}, status=500)
+        
+        # Build context-aware prompt
+        system_prompt = """You are an expert agricultural advisor for AgriDroneX, a precision agriculture platform. 
+        Your role is to provide helpful, accurate, and practical advice about:
+        - Crop selection and recommendations based on location, climate, and soil conditions
+        - Best practices for farming and agriculture
+        - Crop diseases, pests, and their prevention
+        - Seasonal planting recommendations
+        - Soil management and fertilization
+        - Irrigation and water management
+        - Modern farming techniques and precision agriculture
+        
+        Always provide:
+        - Clear, concise, and actionable advice
+        - Location-specific recommendations when location is provided
+        - Scientific and practical information
+        - Safety considerations when recommending pesticides or chemicals
+        
+        If asked about crops suitable for an area, consider:
+        - Climate zone and temperature ranges
+        - Soil type and pH preferences
+        - Water availability
+        - Growing season length
+        - Market demand and profitability
+        
+        Be friendly, professional, and helpful. If you don't know something, admit it rather than guessing."""
+        
+        # Add location context if provided
+        location_context = ""
+        if location:
+            location_context = f"\n\nUser's location context: {location}\nProvide location-specific recommendations when relevant."
+        
+        # Combine prompts
+        full_prompt = f"{system_prompt}{location_context}\n\nUser question: {user_message}\n\nProvide a helpful response:"
+        
+        # Generate response
+        response = model.generate_content(full_prompt)
+        
+        # Extract response text
+        response_text = response.text if hasattr(response, 'text') else str(response)
+        
+        return JsonResponse({
+            'response': response_text,
+            'model': selected_model_name or 'unknown'
+        })
+        
+    except Exception as e:
+        print(f"Error in Gemini chat: {e}")
+        return JsonResponse({
+            'error': f'Failed to generate response: {str(e)}'
+        }, status=500)

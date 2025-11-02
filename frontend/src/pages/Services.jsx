@@ -50,7 +50,7 @@ const Services = () => {
             <h2 className="card-title">Standard Plan</h2>
             <p className="card-subtitle">Perfect for small to medium-sized farms</p>
             <div className="card-price">
-              <span className="price-amount">$299</span>
+              <span className="price-amount">RS 1800</span>
               <span className="price-period">/month</span>
             </div>
             <div className="card-features">
@@ -83,7 +83,7 @@ const Services = () => {
             <h2 className="card-title">Premium Plan</h2>
             <p className="card-subtitle">Advanced features for professional farmers</p>
             <div className="card-price">
-              <span className="price-amount">$599</span>
+              <span className="price-amount">RS 2200</span>
               <span className="price-period">/month</span>
             </div>
             <div className="card-features">

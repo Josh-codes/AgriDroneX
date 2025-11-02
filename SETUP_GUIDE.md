@@ -30,7 +30,14 @@ pip install -r requirements.txt
 ```
 OPENWEATHER_API_KEY=your_api_key_here
 SECRET_KEY=your_secret_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
+
+   **To get Gemini API Key:**
+   - Go to https://makersuite.google.com/app/apikey
+   - Sign in with your Google account
+   - Click "Create API Key"
+   - Copy the API key and add it to your `.env` file
 
 5. Run migrations:
 ```bash

@@ -17,4 +17,5 @@ urlpatterns = [
     path('api/farms/<int:farm_id>/weather/', api_views.get_farm_weather, name='api_farm_weather'),
     path('api/crops/', api_views.get_crops, name='api_crops'),
     path('api/predict/', api_views.predict_blight, name='api_predict'),
+    path('api/chat/', api_views.chat_with_gemini, name='api_chat'),
 ]
