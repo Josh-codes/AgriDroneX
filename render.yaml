@@ -20,10 +20,22 @@ services:
         value: False
       - key: ALLOWED_HOSTS
         value: .onrender.com
-      - key: DATABASE_URL
-        fromDatabase:
-          name: agridetector-db
-          property: connectionString
+
+  # React Frontend
+  - type: web
+    name: agridetector-frontend
+    env: node
+    region: oregon
+    buildCommand: |
+      cd frontend
+      npm install
+      npm run build
+    startCommand: cd frontend && npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
+      - key: VITE_API_URL
+        value: https://agridetector-backend.onrender.com
     
   # PostgreSQL Database (optional - you can use SQLite for now)
   # - type: pgsql
