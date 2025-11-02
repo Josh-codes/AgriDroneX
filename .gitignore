@@ -83,3 +83,6 @@ htmlcov/
 *.tmp
 *.temp
 temp/
+
+# Large video files (over 100MB)
+# frontend/public/videos/ - now allowing videos under 100MB
