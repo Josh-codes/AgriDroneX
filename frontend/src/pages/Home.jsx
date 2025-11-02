@@ -6,8 +6,29 @@ import ChatButton from '../components/ChatButton'
 const Home = () => {
   return (
     <div className="home">
-      {/* Hero Section with Background Image */}
+      {/* Hero Section with Background Video */}
       <section className="hero-section">
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="hero-video-background"
+          style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            zIndex: 0
+          }}
+        >
+          <source src="/videos/drone.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        {/* Dark overlay for better text readability */}
+        <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1 className="hero-title">Precision Agriculture from Above</h1>
           <p className="hero-subtitle">Advanced drone technology for smarter, more efficient farming.</p>
@@ -47,7 +68,7 @@ const Home = () => {
       {/* Why Choose Us Section */}
       <section className="why-choose-section">
         <div className="why-choose-content">
-          <h2 className="section-title">Why Choose AgriDroneX?</h2>
+          <h2 className="section-title">Why Choose AgriPulse?</h2>
           <p className="section-subtitle">Advanced technology meets agricultural expertise</p>
           <div className="features-grid">
             <div className="feature-card">
@@ -78,7 +99,7 @@ const Home = () => {
       <section className="cta-banner">
         <div className="cta-content">
           <h2 className="cta-title">Ready to Revolutionize Your Farm?</h2>
-          <p className="cta-subtitle">Join hundreds of farmers who have increased their yields by up to 35% with AgriDroneX</p>
+          <p className="cta-subtitle">Join hundreds of farmers who have increased their yields by up to 35% with AgriPulse</p>
           <Link to="/services" className="btn btn-cta">Schedule a Demo</Link>
         </div>
       </section>
@@ -89,7 +110,7 @@ const Home = () => {
           <div className="footer-column">
             <div className="footer-logo">
               <div className="footer-logo-icon">☀</div>
-              <span className="footer-logo-text">AgriDroneX</span>
+              <span className="footer-logo-text">AgriPulse</span>
             </div>
             <p className="footer-description">
               Transforming agriculture with precision drone technology for sustainable farming.
@@ -110,12 +131,12 @@ const Home = () => {
             <div className="footer-contact">
               <p><span className="contact-icon">📍</span> 123 AgriTech Plaza, Innovation District, Tech City 12345</p>
               <p><span className="contact-icon">📞</span> +1 (555) 123-4567</p>
-              <p><span className="contact-icon">✉️</span> info@agridronex.com</p>
+              <p><span className="contact-icon">✉️</span> info@agripulse.com</p>
             </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2025 AgriDroneX. All rights reserved.</p>
+          <p>© 2025 AgriPulse. All rights reserved.</p>
         </div>
       </footer>
 

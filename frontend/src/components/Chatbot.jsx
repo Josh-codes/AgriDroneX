@@ -109,7 +109,7 @@ const Chatbot = ({ isOpen, onClose }) => {
         <div className="chatbot-header">
           <div className="chatbot-title">
             <span className="chatbot-icon">🌾</span>
-            <h3>AgriDroneX Assistant</h3>
+            <h3>AgriPulse Assistant</h3>
           </div>
           <button className="chatbot-close" onClick={onClose}>×</button>
         </div>
@@ -175,3 +175,5 @@ const Chatbot = ({ isOpen, onClose }) => {
 }
 
 export default Chatbot
+
+

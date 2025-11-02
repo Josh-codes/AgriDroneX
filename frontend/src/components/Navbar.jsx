@@ -18,7 +18,7 @@ const Navbar = () => {
         <div className="navbar-center">
           <Link to="/" className="logo">
             <div className="logo-icon">☀</div>
-            <span className="logo-text">AgriDroneX</span>
+            <span className="logo-text">AgriPulse</span>
           </Link>
         </div>
         
