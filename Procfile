@@ -1,1 +1,1 @@
-web: cd farmer_weather && python manage.py migrate && gunicorn farmer_weather.wsgi:application --log-file -
+web: cd farmer_weather && gunicorn farmer_weather.wsgi:application --bind 0.0.0.0:$PORT

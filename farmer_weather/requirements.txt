@@ -4,7 +4,10 @@ python-dotenv==1.0.0
 django-cors-headers
 opencv-python-headless
 tensorflow==2.15.0
-numpy==1.24.3
+numpy==1.26.4
 pillow
 h5py==3.9.0
 google-generativeai
+gunicorn==21.2.0
+whitenoise==6.6.0
+psycopg2-binary==2.9.9
