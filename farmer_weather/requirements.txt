@@ -1,0 +1,9 @@
+Django==4.2.7
+requests==2.31.0
+python-dotenv==1.0.0
+django-cors-headers
+opencv-python-headless
+tensorflow==2.15.0
+numpy==1.24.3
+pillow
+h5py==3.9.0

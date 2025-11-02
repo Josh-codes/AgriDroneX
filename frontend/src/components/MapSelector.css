@@ -1,0 +1,88 @@
+.map-selector {
+  width: 100%;
+  margin: 20px 0;
+}
+
+.map-search-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.map-search-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.map-search-input:focus {
+  outline: none;
+  border-color: #10b981;
+}
+
+.map-search-btn {
+  padding: 10px 25px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.map-search-btn:hover {
+  background: #059669;
+}
+
+.selected-location {
+  background: #f0fdf4;
+  border: 1px solid #10b981;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #166534;
+}
+
+.selected-location strong {
+  color: #10b981;
+}
+
+.selected-location small {
+  color: #059669;
+  font-size: 12px;
+}
+
+.map-container-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.map-instruction {
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+/* Leaflet popup customization */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 10px 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .map-container-wrapper {
+    height: 300px !important;
+  }
+}

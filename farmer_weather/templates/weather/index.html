@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Farmer Weather{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-house-door"></i> My Farms</h1>
+            <a href="{% url 'create_farm' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Add New Farm
+            </a>
+        </div>
+
+        {% if farms %}
+            <div class="row">
+                {% for farm in farms %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-geo-alt-fill text-success"></i> {{ farm.name }}
+                            </h5>
+                            <p class="card-text">
+                                <strong>Location:</strong> {{ farm.location_name }}<br>
+                                <strong>Crop:</strong> 
+                                {% if farm.crop %}
+                                    <span class="badge bg-success">{{ farm.crop }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Not set</span>
+                                {% endif %}
+                            </p>
+                            <p class="text-muted small">
+                                <i class="bi bi-calendar"></i> Created: {{ farm.created_at|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'farm_dashboard' farm.id %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                            <a href="{% url 'edit_farm' farm.id %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-cloud-sun display-1 text-muted"></i>
+                <h3 class="mt-3">No farms added yet</h3>
+                <p class="text-muted">Get started by adding your first farm!</p>
+                <a href="{% url 'create_farm' %}" class="btn btn-success btn-lg">
+                    <i class="bi bi-plus-circle"></i> Add Your First Farm
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h3><i class="bi bi-info-circle"></i> About Farmer Weather</h3>
+                <p>
+                    Get intelligent weather insights tailored to your crops. Our system provides:
+                </p>
+                <ul>
+                    <li><strong>Real-time Weather Data:</strong> Current conditions and 5-day forecasts</li>
+                    <li><strong>Crop-Specific Insights:</strong> Recommendations based on your selected crops</li>
+                    <li><strong>Weather Calendar:</strong> Plan your farming activities ahead</li>
+                    <li><strong>Smart Alerts:</strong> Get warnings about frost, extreme temperatures, and rainfall</li>
+                    <li><strong>Irrigation Guidance:</strong> Know when to water and when to save</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

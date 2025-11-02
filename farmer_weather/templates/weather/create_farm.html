@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Farm - Farmer Weather{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .search-container {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1><i class="bi bi-plus-circle"></i> Add New Farm</h1>
+        <p class="text-muted">Select your farm location on the map and choose your crop</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="bi bi-map"></i> Select Location
+                </h5>
+                <div class="search-container">
+                    <div class="input-group">
+                        <input id="search-input" class="form-control" type="text" placeholder="Enter latitude, longitude (e.g., 40.7128, -74.0060)">
+                        <button class="btn btn-primary" type="button" id="search-btn">
+                            <i class="bi bi-search"></i> Go to Location
+                        </button>
+                    </div>
+                    <small class="text-muted">Or click anywhere on the map to select a location</small>
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="bi bi-journal-text"></i> Farm Details
+                </h5>
+                <form method="post" id="farm-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Farm Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="location_name" class="form-label">Location Name *</label>
+                        <input type="text" class="form-control" id="location_name" name="location_name" readonly required>
+                        <small class="text-muted">This will be auto-filled when you select a location on the map</small>
+                    </div>
+                    
+                    <input type="hidden" id="latitude" name="latitude" required>
+                    <input type="hidden" id="longitude" name="longitude" required>
+                    
+                    <div class="mb-3">
+                        <label for="crop" class="form-label">Select Crop *</label>
+                        <select class="form-select" id="crop" name="crop" required>
+                            <option value="">Choose a crop...</option>
+                            {% for crop in crops %}
+                                <option value="{{ crop.id }}">{{ crop.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Tip:</strong> Select your crop to get tailored weather insights and recommendations.
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Create Farm
+                    </button>
+                    <a href="{% url 'index' %}" class="btn btn-secondary btn-lg">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let map;
+    let marker;
+
+    // Initialize map
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("Initializing OpenStreetMap with Leaflet");
+        
+        // Default location (center of USA)
+        const defaultLocation = [39.8283, -98.5795];
+
+        // Create map
+        map = L.map('map').setView(defaultLocation, 4);
+
+        // Add OpenStreetMap tiles (free, no API key needed!)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        console.log("Map initialized successfully");
+
+        // Add click event to map
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            console.log("Map clicked at:", lat, lng);
+            
+            // Remove existing marker
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            // Create new marker
+            marker = L.marker([lat, lng], {
+                draggable: true
+            }).addTo(map);
+
+            // Update form fields
+            updateFormFields(lat, lng);
+
+            // Add drag event listener
+            marker.on('dragend', function(event) {
+                const position = event.target.getLatLng();
+                console.log("Marker dragged to:", position.lat, position.lng);
+                updateFormFields(position.lat, position.lng);
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const input = document.getElementById('search-input').value;
+            const coords = input.split(',').map(s => parseFloat(s.trim()));
+            
+            if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                const lat = coords[0];
+                const lng = coords[1];
+                
+                console.log("Searching for:", lat, lng);
+                
+                // Remove existing marker
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                
+                // Create marker at searched location
+                marker = L.marker([lat, lng], {
+                    draggable: true
+                }).addTo(map);
+                
+                // Center map on location
+                map.setView([lat, lng], 13);
+                
+                // Update form fields
+                updateFormFields(lat, lng);
+                
+                // Add drag event
+                marker.on('dragend', function(event) {
+                    const position = event.target.getLatLng();
+                    updateFormFields(position.lat, position.lng);
+                });
+            } else {
+                alert('Please enter coordinates in format: latitude, longitude\nExample: 40.7128, -74.0060');
+            }
+        });
+
+        // Allow Enter key to search
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        });
+
+        // Try to get user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = [position.coords.latitude, position.coords.longitude];
+                    map.setView(pos, 12);
+                    console.log("User location:", pos);
+                },
+                () => {
+                    console.log("Geolocation not available or denied");
+                }
+            );
+        }
+    });
+
+    function updateFormFields(lat, lng) {
+        console.log("Updating form fields:", lat, lng);
+        
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
+        
+        // Create a simple location name from coordinates
+        const locationName = `Location: ${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+        document.getElementById("location_name").value = locationName;
+        
+        console.log("Form fields updated successfully");
+    }
+
+    // Form validation
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("farm-form").addEventListener("submit", function(e) {
+            const lat = document.getElementById("latitude").value;
+            const lng = document.getElementById("longitude").value;
+
+            console.log("Form submitted with:", lat, lng);
+            
+            if (!lat || !lng) {
+                e.preventDefault();
+                alert("Please select a location on the map!");
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}

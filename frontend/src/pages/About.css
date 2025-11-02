@@ -1,0 +1,31 @@
+.about-page {
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  background: white;
+}
+
+.about-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  margin-bottom: 3rem;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.about-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #666;
+}
+

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}System Check{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1><i class="bi bi-gear"></i> System Check</h1>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Configuration Status</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <td><strong>Map Service:</strong></td>
+                        <td>
+                            <span class="badge bg-success">OpenStreetMap (Free - No API Key Required!)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>OpenWeatherMap API Key:</strong></td>
+                        <td>
+                            {% if openweather_key %}
+                                <span class="badge bg-success">Configured ({{ openweather_key|slice:":10" }}...)</span>
+                            {% else %}
+                                <span class="badge bg-danger">Not Set</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Crops in Database:</strong></td>
+                        <td>
+                            {% if crop_count > 0 %}
+                                <span class="badge bg-success">{{ crop_count }} crops loaded</span>
+                            {% else %}
+                                <span class="badge bg-warning">No crops - run populate_crops.py</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Next Steps</h5>
+            </div>
+            <div class="card-body">
+                {% if not openweather_key %}
+                    <div class="alert alert-warning">
+                        <h6><i class="bi bi-exclamation-triangle"></i> Weather API Key Missing</h6>
+                        <ol>
+                            <li>Go to <a href="https://openweathermap.org/api" target="_blank">OpenWeatherMap</a></li>
+                            <li>Sign up for a free account</li>
+                            <li>Get your API key (free tier: 1,000 calls/day)</li>
+                            <li>Add it to the <code>.env</code> file</li>
+                            <li>Restart the server</li>
+                        </ol>
+                    </div>
+                {% endif %}
+
+                {% if crop_count == 0 %}
+                    <div class="alert alert-warning">
+                        <h6><i class="bi bi-exclamation-triangle"></i> No Crops Loaded</h6>
+                        <p>Run this command to populate crops:</p>
+                        <code>python populate_crops.py</code>
+                    </div>
+                {% endif %}
+
+                {% if openweather_key and crop_count > 0 %}
+                    <div class="alert alert-success">
+                        <h6><i class="bi bi-check-circle"></i> All Set!</h6>
+                        <p>Your system is configured correctly. You can now:</p>
+                        <a href="{% url 'create_farm' %}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Create Your First Farm
+                        </a>
+                    </div>
+                {% endif %}
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="bi bi-info-circle"></i> About the Map</h6>
+                    <p>This app now uses <strong>OpenStreetMap with Leaflet.js</strong> - a completely free and open-source mapping solution that requires no API keys!</p>
+                    <p><strong>How to use:</strong></p>
+                    <ul class="mb-0">
+                        <li>Click anywhere on the map to place a marker</li>
+                        <li>Drag the marker to adjust position</li>
+                        <li>Or enter coordinates (latitude, longitude) in the search box</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

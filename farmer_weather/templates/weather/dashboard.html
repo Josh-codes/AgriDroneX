@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ farm.name }} - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>
+                    <i class="bi bi-speedometer2"></i> {{ farm.name }}
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-geo-alt"></i> {{ farm.location_name }}
+                    {% if farm.crop %}
+                        | <i class="bi bi-flower1"></i> Growing: <strong>{{ farm.crop }}</strong>
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'weather_calendar' farm.id %}" class="btn btn-info">
+                    <i class="bi bi-calendar3"></i> Weather Calendar
+                </a>
+                <a href="{% url 'edit_farm' farm.id %}" class="btn btn-secondary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Weather -->
+{% if current_weather %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); opacity: 1;">
+            <div class="card-body text-white">
+                <h3 class="card-title mb-3">
+                    <i class="bi bi-cloud-sun"></i> Current Weather
+                </h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="display-1">{{ current_weather.temperature|floatformat:1 }}°C</div>
+                            <p class="h5">{{ current_weather.weather_description|title }}</p>
+                            <p class="mb-0">Feels like: {{ current_weather.feels_like|floatformat:1 }}°C</p>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <i class="bi bi-droplet"></i> <strong>Humidity:</strong> {{ current_weather.humidity|floatformat:0 }}%
+                            </div>
+                            <div class="col-6 mb-3">
+                                <i class="bi bi-wind"></i> <strong>Wind Speed:</strong> {{ current_weather.wind_speed|floatformat:1 }} m/s
+                            </div>
+                            <div class="col-6 mb-3">
+                                <i class="bi bi-speedometer"></i> <strong>Pressure:</strong> {{ current_weather.pressure|floatformat:0 }} hPa
+                            </div>
+                            <div class="col-6 mb-3">
+                                <i class="bi bi-cloud"></i> <strong>Cloudiness:</strong> {{ current_weather.clouds|floatformat:0 }}%
+                            </div>
+                            {% if current_weather.precipitation > 0 %}
+                            <div class="col-12">
+                                <i class="bi bi-cloud-rain"></i> <strong>Precipitation:</strong> {{ current_weather.precipitation|floatformat:1 }} mm
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <p class="text-end mb-0 mt-2">
+                    <small><i class="bi bi-clock"></i> Updated: {{ current_weather.fetched_at|date:"M d, Y H:i" }}</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Farming Insights -->
+{% if insights %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h3><i class="bi bi-lightbulb"></i> Farming Insights & Recommendations</h3>
+    </div>
+    {% for insight in insights %}
+    <div class="col-md-6 mb-3">
+        <div class="card h-100 border-start border-5 
+            {% if insight.priority == 3 %}border-danger
+            {% elif insight.priority == 2 %}border-warning
+            {% else %}border-info{% endif %}">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% if insight.insight_type == 'WARNING' %}
+                        <i class="bi bi-exclamation-triangle text-danger"></i>
+                    {% elif insight.insight_type == 'WATERING' %}
+                        <i class="bi bi-droplet text-primary"></i>
+                    {% elif insight.insight_type == 'PLANTING' %}
+                        <i class="bi bi-seedling text-success"></i>
+                    {% elif insight.insight_type == 'HARVESTING' %}
+                        <i class="bi bi-basket text-warning"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle text-info"></i>
+                    {% endif %}
+                    {{ insight.title }}
+                </h5>
+                <p class="card-text">{{ insight.description }}</p>
+                <p class="text-muted mb-0">
+                    <small>
+                        <i class="bi bi-calendar-event"></i> 
+                        Valid: {{ insight.valid_from|date:"M d" }} - {{ insight.valid_until|date:"M d" }}
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- 5-Day Forecast -->
+{% if forecast_data %}
+<div class="row">
+    <div class="col-md-12">
+        <h3><i class="bi bi-calendar-week"></i> 5-Day Forecast</h3>
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Temperature</th>
+                                <th>Weather</th>
+                                <th>Humidity</th>
+                                <th>Wind</th>
+                                <th>Rain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for weather in forecast_data %}
+                            <tr>
+                                <td>
+                                    <strong>{{ weather.timestamp|date:"D, M d" }}</strong><br>
+                                    <small class="text-muted">{{ weather.timestamp|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ weather.temperature|floatformat:1 }}°C</span>
+                                </td>
+                                <td>
+                                    {{ weather.weather_description|title }}
+                                </td>
+                                <td>
+                                    <i class="bi bi-droplet"></i> {{ weather.humidity|floatformat:0 }}%
+                                </td>
+                                <td>
+                                    <i class="bi bi-wind"></i> {{ weather.wind_speed|floatformat:1 }} m/s
+                                </td>
+                                <td>
+                                    {% if weather.precipitation > 0 %}
+                                        <i class="bi bi-cloud-rain text-primary"></i> {{ weather.precipitation|floatformat:1 }} mm
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> 
+    <strong>No forecast data available.</strong>
+    <br>
+    <p class="mb-2 mt-2">Possible reasons:</p>
+    <ul class="mb-2">
+        <li><strong>New API Key:</strong> OpenWeatherMap API keys can take 1-2 hours to activate after creation</li>
+        <li><strong>Invalid API Key:</strong> Check your <code>.env</code> file has the correct key</li>
+        <li><strong>Network Issue:</strong> Check your internet connection</li>
+    </ul>
+    <p class="mb-0">
+        <strong>To fix:</strong>
+        <br>1. Check the terminal/console for error details
+        <br>2. Verify your API key at: <a href="https://home.openweathermap.org/api_keys" target="_blank">OpenWeatherMap API Keys</a>
+        <br>3. Wait 1-2 hours if you just created the key
+        <br>4. Visit <a href="{% url 'system_check' %}">System Check</a> to verify configuration
+    </p>
+</div>
+{% endif %}
+{% endblock %}

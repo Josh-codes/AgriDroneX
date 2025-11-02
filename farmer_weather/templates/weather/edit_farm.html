@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Farm - {{ farm.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .search-container {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1><i class="bi bi-pencil"></i> Edit Farm</h1>
+        <p class="text-muted">Update your farm details</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="bi bi-map"></i> Location
+                </h5>
+                <div class="search-container">
+                    <div class="input-group">
+                        <input id="search-input" class="form-control" type="text" placeholder="Enter latitude, longitude (e.g., 40.7128, -74.0060)">
+                        <button class="btn btn-primary" type="button" id="search-btn">
+                            <i class="bi bi-search"></i> Go to Location
+                        </button>
+                    </div>
+                    <small class="text-muted">Or click anywhere on the map to select a location</small>
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <i class="bi bi-journal-text"></i> Farm Details
+                </h5>
+                <form method="post" id="farm-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Farm Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ farm.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="location_name" class="form-label">Location Name *</label>
+                        <input type="text" class="form-control" id="location_name" name="location_name" value="{{ farm.location_name }}" readonly required>
+                    </div>
+                    
+                    <input type="hidden" id="latitude" name="latitude" value="{{ farm.latitude }}" required>
+                    <input type="hidden" id="longitude" name="longitude" value="{{ farm.longitude }}" required>
+                    
+                    <div class="mb-3">
+                        <label for="crop" class="form-label">Select Crop *</label>
+                        <select class="form-select" id="crop" name="crop" required>
+                            <option value="">Choose a crop...</option>
+                            {% for crop in crops %}
+                                <option value="{{ crop.id }}" {% if farm.crop.id == crop.id %}selected{% endif %}>
+                                    {{ crop.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Save Changes
+                    </button>
+                    <a href="{% url 'farm_dashboard' farm.id %}" class="btn btn-secondary btn-lg">Cancel</a>
+                    <a href="{% url 'delete_farm' farm.id %}" class="btn btn-danger btn-lg float-end">
+                        <i class="bi bi-trash"></i> Delete Farm
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let map;
+    let marker;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const farmLocation = [
+            parseFloat("{{ farm.latitude }}"), 
+            parseFloat("{{ farm.longitude }}")
+        ];
+
+        // Create map centered on farm location
+        map = L.map('map').setView(farmLocation, 12);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Create initial marker at farm location
+        marker = L.marker(farmLocation, {
+            draggable: true
+        }).addTo(map);
+
+        // Map click event
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateFormFields(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Marker drag event
+        marker.on('dragend', function(event) {
+            const position = event.target.getLatLng();
+            updateFormFields(position.lat, position.lng);
+        });
+
+        // Search functionality
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const input = document.getElementById('search-input').value;
+            const coords = input.split(',').map(s => parseFloat(s.trim()));
+            
+            if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                const lat = coords[0];
+                const lng = coords[1];
+                
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], 13);
+                updateFormFields(lat, lng);
+            } else {
+                alert('Please enter coordinates in format: latitude, longitude\nExample: 40.7128, -74.0060');
+            }
+        });
+
+        // Enter key to search
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        });
+    });
+
+    function updateFormFields(lat, lng) {
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
+        const locationName = `Location: ${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+        document.getElementById("location_name").value = locationName;
+    }
+</script>
+{% endblock %}

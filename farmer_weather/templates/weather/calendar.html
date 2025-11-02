@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Weather Calendar - {{ farm.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-day {
+        min-height: 150px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        background: white;
+        transition: transform 0.2s;
+    }
+    .calendar-day:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .calendar-day h5 {
+        color: #28a745;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    .weather-item {
+        background: #f8f9fa;
+        padding: 8px;
+        margin-bottom: 8px;
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
+    .temp-high {
+        color: #dc3545;
+    }
+    .temp-low {
+        color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1><i class="bi bi-calendar3"></i> Weather Calendar</h1>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-geo-alt"></i> {{ farm.name }} - {{ farm.location_name }}
+                </p>
+            </div>
+            <a href="{% url 'farm_dashboard' farm.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 
+            <strong>5-Day Weather Calendar</strong> - Plan your farming activities based on upcoming weather conditions.
+        </div>
+    </div>
+</div>
+
+{% if calendar_data %}
+<div class="row">
+    {% for date, weather_list in calendar_data.items %}
+    <div class="col-md-6 col-lg-4">
+        <div class="calendar-day">
+            <h5>
+                <i class="bi bi-calendar-day"></i> 
+                {{ date|date:"l, M d" }}
+            </h5>
+            
+            {% if weather_list %}
+                {% with weather_list|first as morning %}
+                {% with weather_list|last as evening %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>
+                            <i class="bi bi-thermometer-high temp-high"></i> 
+                            High: <strong>{{ morning.temperature|floatformat:1 }}°C</strong>
+                        </span>
+                        <span>
+                            <i class="bi bi-thermometer-low temp-low"></i> 
+                            Low: <strong>{{ evening.temperature|floatformat:1 }}°C</strong>
+                        </span>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endwith %}
+                
+                <!-- Daily summary -->
+                <div class="mb-2">
+                    {% with weather_list|first as first_weather %}
+                    <p class="mb-1">
+                        <i class="bi bi-cloud"></i> <strong>{{ first_weather.weather_description|title }}</strong>
+                    </p>
+                    {% endwith %}
+                    
+                    <!-- Daily precipitation summary -->
+                    {% with first_weather=weather_list|first %}
+                        {% if first_weather.precipitation > 0 %}
+                            <p class="mb-1">
+                                <i class="bi bi-cloud-rain text-primary"></i> 
+                                Rain: <strong>{{ first_weather.precipitation|floatformat:1 }} mm</strong>
+                            </p>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                
+                <!-- Hourly breakdown -->
+                <div class="mt-3">
+                    <p class="mb-2"><small><strong>Hourly Breakdown:</strong></small></p>
+                    {% for weather in weather_list %}
+                        {% if forloop.counter <= 4 %}
+                        <div class="weather-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="bi bi-clock"></i> {{ weather.timestamp|date:"H:i" }}
+                                </span>
+                                <span>
+                                    <i class="bi bi-thermometer"></i> {{ weather.temperature|floatformat:1 }}°C
+                                </span>
+                                <span>
+                                    <i class="bi bi-droplet"></i> {{ weather.humidity|floatformat:0 }}%
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <!-- Farming advice for the day -->
+                <div class="mt-3 pt-3 border-top">
+                    <small class="text-muted">
+                        <i class="bi bi-lightbulb"></i> 
+                        {% with weather_list|first as day_weather %}
+                            {% if day_weather.precipitation > 5 %}
+                                <strong>Skip irrigation.</strong> Natural rainfall expected.
+                            {% elif day_weather.temperature > 30 %}
+                                <strong>High heat.</strong> Ensure adequate watering.
+                            {% elif day_weather.temperature < 10 %}
+                                <strong>Cool weather.</strong> Monitor sensitive crops.
+                            {% else %}
+                                <strong>Good conditions</strong> for routine farm work.
+                            {% endif %}
+                        {% endwith %}
+                    </small>
+                </div>
+            {% else %}
+                <p class="text-muted">No data available</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> No weather calendar data available.
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5><i class="bi bi-journal-text"></i> How to Use the Weather Calendar</h5>
+                <ul>
+                    <li><strong>Plan Irrigation:</strong> Check rainfall predictions to schedule watering</li>
+                    <li><strong>Choose Work Days:</strong> Select days with favorable conditions for field work</li>
+                    <li><strong>Protect Crops:</strong> Prepare for extreme temperatures or heavy rain</li>
+                    <li><strong>Optimize Planting:</strong> Use temperature and humidity data for planting decisions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

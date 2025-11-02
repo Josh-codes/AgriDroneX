@@ -1,0 +1,173 @@
+.services-page {
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  background: #f8f8f8;
+}
+
+.services-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.services-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.services-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 3rem;
+  font-size: 1.1rem;
+}
+
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.pricing-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+}
+
+.pricing-card.premium {
+  border: 2px solid #1a6d2d;
+}
+
+.popular-badge {
+  position: absolute;
+  top: -10px;
+  right: 20px;
+  background: #1a6d2d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  transform: rotate(5deg);
+}
+
+.card-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.card-price {
+  margin-bottom: 2rem;
+}
+
+.price-amount {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #1a6d2d;
+}
+
+.price-period {
+  font-size: 1rem;
+  color: #666;
+  margin-left: 0.5rem;
+}
+
+.card-features {
+  margin-bottom: 2rem;
+}
+
+.features-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.75rem 0;
+  color: #333;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+}
+
+.caret {
+  font-size: 0.875rem;
+  color: #1a6d2d;
+}
+
+.features-list {
+  list-style: none;
+  margin-top: 1rem;
+  padding: 0;
+}
+
+.features-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #666;
+}
+
+.checkmark {
+  color: #1a6d2d;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.card-button {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s;
+  display: block;
+}
+
+.standard-btn {
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.standard-btn:hover {
+  background: #f5f5f5;
+}
+
+.premium-btn {
+  background: #1a6d2d;
+  color: white;
+}
+
+.premium-btn:hover {
+  background: #155a24;
+}
+
+@media (max-width: 768px) {
+  .pricing-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .pricing-card {
+    padding: 2rem;
+  }
+}
+
